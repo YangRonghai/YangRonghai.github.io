@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>http://personal.ie.cuhk.edu.hk/~yr013/heap-debug/</loc>
+    <lastmod>2017-03-31T00:00:00+08:00</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>http://personal.ie.cuhk.edu.hk/~yr013/random-oracle/</loc>
+    <lastmod>2015-01-23T12:37:16+08:00</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>http://personal.ie.cuhk.edu.hk/~yr013/</loc>
+    <lastmod>2019-02-11T21:33:05+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>http://personal.ie.cuhk.edu.hk/~yr013/research/</loc>
+    <lastmod>2019-02-11T21:33:05+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>http://personal.ie.cuhk.edu.hk/~yr013/teaching/</loc>
+    <lastmod>2019-02-11T21:33:05+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>http://personal.ie.cuhk.edu.hk/~yr013/home/</loc>
+    <lastmod>2019-02-11T21:33:05+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>http://personal.ie.cuhk.edu.hk/~yr013/index2.html</loc>
+    <lastmod>2019-02-11T21:33:05+08:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+</urlset>

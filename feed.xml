@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+<title type="text">YANG, Ronghai</title>
+<generator uri="https://github.com/jekyll/jekyll">Jekyll</generator>
+<link rel="self" type="application/atom+xml" href="http://personal.ie.cuhk.edu.hk/~yr013/feed.xml" />
+<link rel="alternate" type="text/html" href="http://personal.ie.cuhk.edu.hk/~yr013" />
+<updated>2019-02-11T21:33:05+08:00</updated>
+<id>http://personal.ie.cuhk.edu.hk/~yr013/</id>
+<author>
+  <name>Yang Ronghai</name>
+  <uri>http://personal.ie.cuhk.edu.hk/~yr013/</uri>
+  <email>yr013@ie.cuhk.edu.hk</email>
+</author>
+
+
+  
+
+<entry>
+  <title type="html"><![CDATA[Heap Debug]]></title>
+  <link rel="alternate" type="text/html" href="http://personal.ie.cuhk.edu.hk/~yr013/heap-debug/" />
+  <id>http://personal.ie.cuhk.edu.hk/~yr013/heap-debug</id>
+  <published>2017-03-31T00:00:00+08:00</published>
+  <updated>2017-03-31T00:00:00+08:00</updated>
+  <author>
+    <name>Yang Ronghai</name>
+    <uri>http://personal.ie.cuhk.edu.hk/~yr013</uri>
+    <email>yr013@ie.cuhk.edu.hk</email>
+  </author>
+  <content type="html">&lt;h1 id=&quot;centerheap-introduction--debug-center&quot;&gt;&lt;center&gt;Heap Introduction &amp;amp; Debug &lt;/center&gt;&lt;/h1&gt;
+
+&lt;p&gt;Hey! First, thanks the good introduction of &lt;strong&gt;0day 安全：软件安全分析&lt;/strong&gt;. Unfortunately,  the screenshot for the lab is not clear. And the setup is a little bit different. Anyway, in this blog, I mainly replay the lab while hope to give more insights at the same time.&lt;/p&gt;
+
+&lt;!---
+Hey! I&#39;m your first Markdown document in **StackEdit**[^stackedit]. Don&#39;t delete me, I&#39;m very helpful! I can be recovered anyway in the **Utils** tab of the &lt;i class=&quot;icon-cog&quot;&gt;&lt;/i&gt; **Settings** dialog. 
+---&gt;
+&lt;hr /&gt;
+
+&lt;h2 id=&quot;the-program-under-debug&quot;&gt;The program under debug&lt;/h2&gt;
+
+&lt;!---
+![program under test](../images/posts/heap/img/code_under_test.png)
+---&gt;
+
+&lt;p&gt;&lt;img src=&quot;../images/posts/heap/img/code_under_test.png&quot; width=&quot;40%&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The main purpose of this section is to show how the freelist works:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;how the heap allocates the memory &lt;/li&gt;
+  &lt;li&gt;how HeapFree works&lt;/li&gt;
+  &lt;li&gt;How the freed heaps got merged&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;The heap under debugging and the normal status works quite different. As specified in the book, key differences are summarised as follows:&lt;/p&gt;
+
+  &lt;ol&gt;
+    &lt;li&gt;debugging heap does not use lookaside table (快表) and only relies on the freelist (空表)&lt;/li&gt;
+    &lt;li&gt;所有堆块都加上16字节&lt;/li&gt;
+    &lt;li&gt;块首标志位不同&lt;/li&gt;
+  &lt;/ol&gt;
+
+  &lt;p&gt;As such, we manually add a breakpoint, i.e., &lt;strong&gt;_asm int 3&lt;/strong&gt;, so that the heap manager will not realize the code is under debugging.&lt;/p&gt;
+
+&lt;/blockquote&gt;
+
+&lt;p&gt;The executable can be found &lt;a href=&quot;../images/posts/heap/heap_debug.tar&quot;&gt;here&lt;/a&gt;. We use Windows 2000 &amp;amp; OllyDbg.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h2 id=&quot;freelist&quot;&gt;Freelist&lt;/h2&gt;
+
+&lt;p&gt;At the breakpoint, a heap is already created via `heapCreate()’ function. The handler is stored in &lt;strong&gt;EAX&lt;/strong&gt;. In our example, the base address of the heap is 0x00420000. Let’s focus on the freelist, which is highly related to heap overflow. The offset of the freelist is 0x178. So let’s directly jump there.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../images/posts/heap/img/freelist0.png&quot; alt=&quot;freelist&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;There is only one free heap pointed by &lt;strong&gt;Freelist[0]&lt;/strong&gt;. The address of the free heap is 0x00420688 (only points to the data section and does not include the 8-bytes header.). There is no other free heaps. So Freelist[1] to Freelist[127] point to themselves.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h2 id=&quot;heap-chunk-structure&quot;&gt;Heap chunk structure&lt;/h2&gt;
+&lt;p&gt;The data structure of in-use heap chunk is shown below.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../images/posts/heap/img/in-use-heap-data-structure.png&quot; width=&quot;40%&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Free heap chunk is almost the same except that the first 8 bytes of the data section stores the links in Freelist.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../images/posts/heap/img/free-heap-data-structure.png&quot; width=&quot;40%&quot; /&gt;&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h2 id=&quot;verify-the-structure-via-debug&quot;&gt;Verify the structure via debug&lt;/h2&gt;
+&lt;p&gt;Go to 0x00420688 (as specified by Freelist[0]).
+Note that the header occupies 8 bytes. So let’s check the header first at 0x00420680.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../images/posts/heap/img/heap0.png&quot; alt=&quot;heap0&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;As shown in the above figure, the size of the heap is 0x0130. The unit is 8 bytes. So the total size is 0x980 bytes. The size of previous chunk is 0x08. &lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;ol&gt;
+    &lt;li&gt;
+      &lt;p&gt;But we apply for 0x1000 bytes. where are the other 0x20 bytes?&lt;/p&gt;
+    &lt;/li&gt;
+    &lt;li&gt;
+      &lt;p&gt;what is the previous chunk?&lt;/p&gt;
+    &lt;/li&gt;
+  &lt;/ol&gt;
+
+&lt;/blockquote&gt;
+
+&lt;hr /&gt;
+
+&lt;h2 id=&quot;assign-heap-chunk&quot;&gt;Assign Heap Chunk&lt;/h2&gt;
+&lt;p&gt;We first execute the following code to apply for 3 bytes memory. But we need 8 bytes header. In theory, 11 bytes is enough, but the calculation unit is 8 bytes. So the heap manager will assign 16 bytes to h1.&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;
+h1 = HeapAlloc(hp, HEAP_ZERO_MEMORY, 3)
+&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Such guess is verified by the assembly code. Firstly, the address of &lt;strong&gt;ntdll.RtlAllocateHeap&lt;/strong&gt; is stored to &lt;strong&gt;EDI&lt;/strong&gt;. As the arguments, 3 (the real application size) plus 8 bytes of the header is pushed to the stack. Then it will call EDI to complete the assignment.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../images/posts/heap/img/assembly_assign_heap.png&quot; alt=&quot;assembly_assign_heap&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The memory changes accordingly. Specifically, the size becomes 0x02 (i.e., 16 bytes). the flags changes from 0x10 to 0x01. Note that the least bit becomes 1, indicating this chunk is in use. 0x0D means 13 (16 -3) bytes are not used.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../images/posts/heap/img/heap_h1_alloc.png&quot; alt=&quot;heap_h1_alloc&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;In addition, the data in 0x420688 become 0. More precisely, only 3 bytes data are initialised to be zero. The others remain the same (one byte of flink and the blink).&lt;/p&gt;
+
+&lt;p&gt;The free heap chunk thus shrinks to 0x012E. The flink and blink points to Freelist[0] as usual.&lt;/p&gt;
+
+&lt;p&gt;The assignment for h2,h3,h4 are similar. But h5 is a little bit different. Originally, only the requested bytes are initialised. For h5, it request for 19 bytes, but all of its data are zero. why?&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;In fact, the reason is simple. Heap manager indeed only initialises those requested data. But at h4, the largest free chunk is located from 0x4206C0 to 0x4206C8. These 16 bytes however are used by h5. So, heap manager initialises these bytes to 0. For the remaining 16 bytes, &lt;strong&gt;they are zero at beginning&lt;/strong&gt;. &lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;img src=&quot;../images/posts/heap/img/heap_h5_alloc.png&quot; alt=&quot;heap_h5_alloc&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Finally, after the assignment of H6, the heap looks as follows:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../images/posts/heap/img/heap_h6_alloc.png&quot; alt=&quot;heap_h6_alloc&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;This verifies the assignment scheme of heap manager.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h2 id=&quot;free-heap-chunk&quot;&gt;Free Heap Chunk&lt;/h2&gt;
+&lt;p&gt;We will free h1, h3, h5 in a row. Since these three chunks are isolated, no collapse will happen. If everything works fine, then h1, h3 (16 bytes) should be indexed by Freelist[2] and h5 (32 bytes) should be indexed by Freelist[4].&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;Freelist&lt;/th&gt;
+      &lt;th&gt;Address&lt;/th&gt;
+      &lt;th&gt;bytes&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Freelist[0]&lt;/td&gt;
+      &lt;td&gt;0x420178&lt;/td&gt;
+      &lt;td&gt;8 bytes&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Freelist[1]&lt;/td&gt;
+      &lt;td&gt;0x420180&lt;/td&gt;
+      &lt;td&gt;16 bytes&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Freelist[2]&lt;/td&gt;
+      &lt;td&gt;0x420188&lt;/td&gt;
+      &lt;td&gt;24 bytes&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Freelist[3]&lt;/td&gt;
+      &lt;td&gt;0x420190&lt;/td&gt;
+      &lt;td&gt;32 bytes&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Freelist[4]&lt;/td&gt;
+      &lt;td&gt;0x420198&lt;/td&gt;
+      &lt;td&gt;40 bytes&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;At this moment, let’s check the freelist info. Currently, only Freelist[0] points to the free heap chunk (0x00420708), but do not forget the header. &lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../images/posts/heap/img/heap_freelist_after_alloc.png&quot; alt=&quot;heap_freelist_after_alloc.png&quot; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;free-h1&quot;&gt;Free h1&lt;/h4&gt;
+
+&lt;p&gt;The assembly code is attached below. Here, &lt;strong&gt;EBX&lt;/strong&gt; stores 0x420688, i.e., the address of h1.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../images/posts/heap/img/assembly_free_h1.png&quot; alt=&quot;assembly_free_h1.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;After free, the flag of h1 become 00 (i.e., free). Meanwhile, the data section are fed by the flink and blink. Here, both of them are 0x00420188 (&lt;strong&gt;Freelist[2]&lt;/strong&gt;), since there is only one free chunk pointed by Freelist[2]. &lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../images/posts/heap/img/free_h1.png&quot; alt=&quot;free_h1.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Check Freelist[2]. Obviously, Freelist[2] links h1.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../images/posts/heap/img/freelist[2]_free_h1.png&quot; alt=&quot;freelist2_free_h1&quot; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;free-h1-h3-h5&quot;&gt;Free h1, h3, h5&lt;/h4&gt;
+
+&lt;p&gt;The procedure of free h3 and h5 is similar. After free h5, Freelist[2] now has two entries: h1 &amp;amp; h3 (0x004206A8). Freelist[4] also links h5 (0x004206C8).&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../images/posts/heap/img/freelist[4]_free_h1.png&quot; alt=&quot;freelist[4]_free_h1.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Now let’s check the heap chunk. Obviously, for those freed chunks, their flags as well as the flink/ blink change accordingly. Take h1 as the example, flink of h1 points to h3 and its blink points to Freelist[2].
+In summary, it becomes a double-linked circular list.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h2 id=&quot;aggregate-heap-chunk&quot;&gt;Aggregate Heap Chunk&lt;/h2&gt;
+&lt;p&gt;If we free h4, then h3, h4 and h5 are in a row. And they would be merged for more efficient chunk assignment later on. &lt;/p&gt;
+
+&lt;p&gt;Let’s check the h3 header. Supposingly, the data section should not change, but the size of the header would be aggregated (64 bytes). In this case, Freelist also changes accordingly. Freelist[8] would point to this chunk. Freelist[2] and Freelist[4] will not link h3 and h5, respectively. h1 also will not point to h3. &lt;/p&gt;
+
+&lt;p&gt;Run and verify it. &lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../images/posts/heap/img/heap_chunk_aggregate.png&quot; alt=&quot;img/heap_chunk_aggregate.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Indeed, the size of (h3+h4+h5) at 0x004206A0 is 0x08 (64bytes). This chunk points to 0x004201B8 (&lt;strong&gt;Freelist[7]&lt;/strong&gt;). H1 only points to Freelist[2].  &lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../images/posts/heap/img/freelist[8]_aggregate.png&quot; alt=&quot;freelist[8]_aggregate.png&quot; /&gt;&lt;/p&gt;
+
+&lt;hr /&gt;
+&lt;p&gt;Thanks for your reading. &lt;/p&gt;
+
+  &lt;p&gt;&lt;a href=&quot;http://personal.ie.cuhk.edu.hk/~yr013/heap-debug/&quot;&gt;Heap Debug&lt;/a&gt; was originally published by Yang Ronghai at &lt;a href=&quot;http://personal.ie.cuhk.edu.hk/~yr013&quot;&gt;YANG, Ronghai&lt;/a&gt; on March 31, 2017.&lt;/p&gt;</content>
+</entry>
+
+
+  
+
+<entry>
+  <title type="html"><![CDATA[Random Oracle Model]]></title>
+  <link rel="alternate" type="text/html" href="http://personal.ie.cuhk.edu.hk/~yr013/random-oracle/" />
+  <id>http://personal.ie.cuhk.edu.hk/~yr013/random-oracle</id>
+  <published>2015-01-23T12:37:16+08:00</published>
+  <updated>2015-01-23T12:37:16+08:00</updated>
+  <author>
+    <name>Yang Ronghai</name>
+    <uri>http://personal.ie.cuhk.edu.hk/~yr013</uri>
+    <email>yr013@ie.cuhk.edu.hk</email>
+  </author>
+  <content type="html">&lt;h2 id=&quot;about-random-oracle-model&quot;&gt;About Random Oracle Model&lt;/h2&gt;
+
+&lt;p&gt;A function &lt;em&gt;H: {0,1}&lt;sup&gt;*&lt;/sup&gt;&lt;/em&gt;—&amp;gt;{0,1}&lt;sup&gt;*&lt;/sup&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Each bit of &lt;em&gt;H(x)&lt;/em&gt; is random.&lt;/li&gt;
+  &lt;li&gt;The output is uniform and independent (treat it as randomly chosen on the fly).&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;em&gt;If an adversary A has not &lt;strong&gt;explicitly&lt;/strong&gt; queried the oracle on some point x, then the value of &lt;strong&gt;H(x) is completely random&lt;/strong&gt; (at least as far as A is concerned)&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Note that it is different from &lt;strong&gt;pseudorandom generator G(x)&lt;/strong&gt;, where &lt;em&gt;G(x)&lt;/em&gt; is pseudorandom to &lt;em&gt;x&lt;/em&gt; which is chosen uniformly at random and is unknown for the adversary. For random oracle, however, &lt;em&gt;H(x)&lt;/em&gt; is truly random as long as the adversary has not query  &lt;em&gt;x&lt;/em&gt; before. This still holds even if &lt;em&gt;x&lt;/em&gt; has been known and is not uniformly random. &lt;/p&gt;
+
+&lt;h2 id=&quot;why-we-need-random-oracle-model&quot;&gt;Why we need random oracle model&lt;/h2&gt;
+
+&lt;p&gt;There are few public-key cryptosystems that are both: (1) efficient enough in practice and (2) can be proven secure in the standard model.  It is hard to design an efficient crypto system based on the number theory assumptions (e.g., factoring problem, DDH assumption, etc.). Therefore, users may prefer to use &lt;em&gt;nothing&lt;/em&gt; instead of an inefficient algorithm. &lt;/p&gt;
+
+&lt;p&gt;An alternative approach is to prove the security in an ideal model, e.g., random oracle model. As long as the instantiation of the ideal model in practice is secure (but sure, such an instantiation may not exist), then the scheme proven secure in ROM should also be secure.  In fact, there have been few real-world attacks on schemes proven secure in ROM. At least, such a proof can help to confirm there are no inherent design problems. &lt;/p&gt;
+
+&lt;p&gt;The fundamental reason is the belief [1]:&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;A proof in security in the random oracle model is significantly better than no proof at all.&lt;/em&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;prove-scheme-secure-in-random-oracle-model&quot;&gt;Prove scheme secure in random oracle model&lt;/h2&gt;
+
+&lt;p&gt;Generally, the proof is done by a reduction algorithm:&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;If the scheme can be broken by the adversary in the random oracle, then a &lt;strong&gt;simulator&lt;/strong&gt; can use this ability to violate some hard cryptographic assumptions.&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;The &lt;strong&gt;reduction&lt;/strong&gt; or &lt;strong&gt;simulator&lt;/strong&gt; has the following power:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;programmability&lt;/strong&gt;: The simulator can choose values for the output of &lt;strong&gt;H&lt;/strong&gt; as it likes as long as the outputs are uniformly distributed. This gives much advantage for the simulator. For example, the simulator may construct &lt;strong&gt;&lt;em&gt;H(x)=g^x mod N.&lt;/em&gt;&lt;/strong&gt; With this power, the simulator can specially craft some constructs of hard problems. &lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;Observability&lt;/strong&gt;:The simulator can see all the queries that Adversary makes to the random oracle. Therefore, the simulator can leverage the power of the adversary to solve some hard problems.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;In the formal model, we assume all the queries are private. Here, we are using Adversary as a subroutine within the reduction/ simulator.&lt;/p&gt;
+
+&lt;h2 id=&quot;example-rsa-encryption-against-chosen-plaintext-attack-in-radom-oracle-model&quot;&gt;Example: RSA Encryption against Chosen Plaintext Attack in Radom Oracle Model&lt;/h2&gt;
+
+&lt;p&gt;Obviously, the textbook RSA encryption is not secured. Here, we show how to prove the following variant scheme is secure.&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+   &lt;p&gt;
+      &lt;p&gt;
+	Gen:
+        (&lt;var&gt;N&lt;/var&gt;,&lt;var&gt;e&lt;/var&gt;,&lt;var&gt;d&lt;/var&gt;)&amp;lt; -
+        &lt;var&gt;G&lt;/var&gt;(1&lt;sup&gt;&amp;lambda;&lt;/sup&gt;)
+      &lt;/p&gt;
+      &lt;p&gt;
+        Enc: on input &lt;var&gt;a&lt;/var&gt; public key (&lt;var&gt;N&lt;/var&gt;,&lt;var&gt;e&lt;/var&gt;) and
+        &lt;var&gt;a&lt;/var&gt; message &lt;var&gt;m&lt;/var&gt;
+        &amp;isin;{0,1}&lt;sup&gt;&lt;var&gt;l&lt;/var&gt;(&lt;var&gt;n&lt;/var&gt;)&lt;/sup&gt;&amp;#x2063;&amp;#x2063;:
+      &lt;/p&gt;
+      &lt;p&gt;
+        (&lt;var&gt;c&lt;/var&gt;&lt;sub&gt;1&lt;/sub&gt;,&lt;var&gt;c&lt;/var&gt;&lt;sub&gt;2&lt;/sub&gt;) =
+        (&lt;var&gt;r&lt;/var&gt;&lt;sup&gt;&lt;var&gt;e&lt;/var&gt;&lt;/sup&gt; mod
+        &lt;var&gt;N&lt;/var&gt;&amp;#x2063;&amp;#x2063;,&lt;var&gt;H&lt;/var&gt;(&lt;var&gt;r&lt;/var&gt;)&amp;oplus;&lt;var&gt;m&lt;/var&gt;)
+        &lt;sup&gt; &lt;/sup&gt;
+      &lt;/p&gt;
+    &lt;/p&gt;
+    &lt;p&gt;
+      Dec:
+      &lt;var&gt;m&lt;/var&gt; = &lt;var&gt;H&lt;/var&gt;(&lt;var&gt;c&lt;/var&gt;&lt;sub&gt;1&lt;/sub&gt;&lt;sup&gt;&lt;var&gt;d&lt;/var&gt;&lt;/sup&gt; 
+      mod &lt;var&gt;N&lt;/var&gt;) &amp;oplus; &lt;var&gt;c&lt;/var&gt;&lt;sub&gt;2&lt;/sub&gt;
+    &lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Intuitively, this scheme is secure. Suppose an adversary can break this scheme by query the oracle, then the RSA problem can be solved as follows:&lt;/p&gt;
+
+&lt;p&gt;Given (&lt;var&gt;N,e, c&lt;sub&gt;1&lt;/sub&gt;,k’&lt;/var&gt;) to the reduction algorithm (here, the simulator guess &lt;var&gt;c&lt;sub&gt;1&lt;/sub&gt; is the ciphertext returned to the adeversary.), which makes the adversary run under the input (&lt;var&gt;N,e&lt;/var&gt;) and ciphertext &lt;var&gt;(c&lt;sub&gt;1&lt;/sub&gt;,c&lt;sub&gt;2&lt;/sub&gt;)&lt;/var&gt;. Note that the adversary can get a ciphertext under chosen plaintext attack, thus the assumption is reasonable.&lt;/var&gt;&lt;/p&gt;
+
+&lt;p&gt;The adversary will query &lt;var&gt;x&lt;/var&gt; to the oracle. If it happens that &lt;var&gt;x&lt;sup&gt;e&lt;/sup&gt; mod N = c&lt;sub&gt;1&lt;/sub&gt;&lt;/var&gt;, the oracle will output &lt;var&gt;k’&lt;/var&gt;, i.e., for any input x, if &lt;em&gt;x^e=c&lt;sub&gt;1&lt;/sub&gt;&lt;/em&gt;, then just output &lt;em&gt;k&lt;sub&gt;1&lt;/sub&gt;=H(x)&lt;/em&gt;;
+Otherwise, choose a random &lt;em&gt;k&lt;/em&gt; as &lt;em&gt;H(x)&lt;/em&gt; and store &lt;em&gt;(x,k)&lt;/em&gt; in the table.&lt;/p&gt;
+
+&lt;p&gt;As &lt;var&gt;k’&lt;/var&gt; is chosen randomly, the view of the Adversary is the same as that in the original setting. Note that the simulator  can monitor all the queries made to the oracle. If the query occurs to be the random variable &lt;em&gt;r&lt;/em&gt;, then the simulator can output the message (&lt;em&gt;r&lt;/em&gt;) given &lt;em&gt;c&lt;sub&gt;1&lt;/sub&gt; = r&lt;sup&gt;e&lt;/sup&gt; mode N&lt;/em&gt;. Therefore, the probability of breaking this scheme by ORM should equal to  RSA, which is hard. Thus this scheme is hard.&lt;/p&gt;
+
+&lt;p&gt;A formal proof can be found in reference [1] as follows:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../images/posts/rom_post1.png&quot; alt=&quot;Formal proof&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;This concludes that the query is negligible since RSA problem is hard.&lt;/p&gt;
+
+&lt;h3 id=&quot;reference&quot;&gt;&lt;em&gt;Reference:&lt;/em&gt;&lt;/h3&gt;
+
+&lt;p&gt;[1] Jonathan Katz, Yehuda Lindell, “Introduction to Modern Cryptography”,2007.&lt;/p&gt;
+
+&lt;p&gt;[2] M. Bellare and P. Rogaway, “Random oracles are practical: a paradigm for designing efficient protocols”, In &lt;em&gt;ACM Conf. on Computer and Communication Security&lt;/em&gt;, 1993.&lt;/p&gt;
+
+  &lt;p&gt;&lt;a href=&quot;http://personal.ie.cuhk.edu.hk/~yr013/random-oracle/&quot;&gt;Random Oracle Model&lt;/a&gt; was originally published by Yang Ronghai at &lt;a href=&quot;http://personal.ie.cuhk.edu.hk/~yr013&quot;&gt;YANG, Ronghai&lt;/a&gt; on January 23, 2015.&lt;/p&gt;</content>
+</entry>
+
+</feed>

@@ -1,0 +1,204 @@
+<h1 id="centerheap-introduction--debug-center"><center>Heap Introduction &amp; Debug </center></h1>
+
+<p>Hey! First, thanks the good introduction of <strong>0day 安全：软件安全分析</strong>. Unfortunately,  the screenshot for the lab is not clear. And the setup is a little bit different. Anyway, in this blog, I mainly replay the lab while hope to give more insights at the same time.</p>
+
+<!---
+Hey! I'm your first Markdown document in **StackEdit**[^stackedit]. Don't delete me, I'm very helpful! I can be recovered anyway in the **Utils** tab of the <i class="icon-cog"></i> **Settings** dialog. 
+--->
+<hr />
+
+<h2 id="the-program-under-debug">The program under debug</h2>
+
+<!---
+![program under test](../images/posts/heap/img/code_under_test.png)
+--->
+
+<p><img src="../images/posts/heap/img/code_under_test.png" width="40%" /></p>
+
+<p>The main purpose of this section is to show how the freelist works:</p>
+
+<ol>
+  <li>how the heap allocates the memory </li>
+  <li>how HeapFree works</li>
+  <li>How the freed heaps got merged</li>
+</ol>
+
+<blockquote>
+  <p>The heap under debugging and the normal status works quite different. As specified in the book, key differences are summarised as follows:</p>
+
+  <ol>
+    <li>debugging heap does not use lookaside table (快表) and only relies on the freelist (空表)</li>
+    <li>所有堆块都加上16字节</li>
+    <li>块首标志位不同</li>
+  </ol>
+
+  <p>As such, we manually add a breakpoint, i.e., <strong>_asm int 3</strong>, so that the heap manager will not realize the code is under debugging.</p>
+
+</blockquote>
+
+<p>The executable can be found <a href="../images/posts/heap/heap_debug.tar">here</a>. We use Windows 2000 &amp; OllyDbg.</p>
+
+<hr />
+
+<h2 id="freelist">Freelist</h2>
+
+<p>At the breakpoint, a heap is already created via `heapCreate()’ function. The handler is stored in <strong>EAX</strong>. In our example, the base address of the heap is 0x00420000. Let’s focus on the freelist, which is highly related to heap overflow. The offset of the freelist is 0x178. So let’s directly jump there.</p>
+
+<p><img src="../images/posts/heap/img/freelist0.png" alt="freelist" /></p>
+
+<p>There is only one free heap pointed by <strong>Freelist[0]</strong>. The address of the free heap is 0x00420688 (only points to the data section and does not include the 8-bytes header.). There is no other free heaps. So Freelist[1] to Freelist[127] point to themselves.</p>
+
+<hr />
+
+<h2 id="heap-chunk-structure">Heap chunk structure</h2>
+<p>The data structure of in-use heap chunk is shown below.</p>
+
+<p><img src="../images/posts/heap/img/in-use-heap-data-structure.png" width="40%" /></p>
+
+<p>Free heap chunk is almost the same except that the first 8 bytes of the data section stores the links in Freelist.</p>
+
+<p><img src="../images/posts/heap/img/free-heap-data-structure.png" width="40%" /></p>
+
+<hr />
+
+<h2 id="verify-the-structure-via-debug">Verify the structure via debug</h2>
+<p>Go to 0x00420688 (as specified by Freelist[0]).
+Note that the header occupies 8 bytes. So let’s check the header first at 0x00420680.</p>
+
+<p><img src="../images/posts/heap/img/heap0.png" alt="heap0" /></p>
+
+<p>As shown in the above figure, the size of the heap is 0x0130. The unit is 8 bytes. So the total size is 0x980 bytes. The size of previous chunk is 0x08. </p>
+
+<blockquote>
+  <ol>
+    <li>
+      <p>But we apply for 0x1000 bytes. where are the other 0x20 bytes?</p>
+    </li>
+    <li>
+      <p>what is the previous chunk?</p>
+    </li>
+  </ol>
+
+</blockquote>
+
+<hr />
+
+<h2 id="assign-heap-chunk">Assign Heap Chunk</h2>
+<p>We first execute the following code to apply for 3 bytes memory. But we need 8 bytes header. In theory, 11 bytes is enough, but the calculation unit is 8 bytes. So the heap manager will assign 16 bytes to h1.</p>
+
+<p><code>
+h1 = HeapAlloc(hp, HEAP_ZERO_MEMORY, 3)
+</code></p>
+
+<p>Such guess is verified by the assembly code. Firstly, the address of <strong>ntdll.RtlAllocateHeap</strong> is stored to <strong>EDI</strong>. As the arguments, 3 (the real application size) plus 8 bytes of the header is pushed to the stack. Then it will call EDI to complete the assignment.</p>
+
+<p><img src="../images/posts/heap/img/assembly_assign_heap.png" alt="assembly_assign_heap" /></p>
+
+<p>The memory changes accordingly. Specifically, the size becomes 0x02 (i.e., 16 bytes). the flags changes from 0x10 to 0x01. Note that the least bit becomes 1, indicating this chunk is in use. 0x0D means 13 (16 -3) bytes are not used.</p>
+
+<p><img src="../images/posts/heap/img/heap_h1_alloc.png" alt="heap_h1_alloc" /></p>
+
+<p>In addition, the data in 0x420688 become 0. More precisely, only 3 bytes data are initialised to be zero. The others remain the same (one byte of flink and the blink).</p>
+
+<p>The free heap chunk thus shrinks to 0x012E. The flink and blink points to Freelist[0] as usual.</p>
+
+<p>The assignment for h2,h3,h4 are similar. But h5 is a little bit different. Originally, only the requested bytes are initialised. For h5, it request for 19 bytes, but all of its data are zero. why?</p>
+
+<blockquote>
+  <p>In fact, the reason is simple. Heap manager indeed only initialises those requested data. But at h4, the largest free chunk is located from 0x4206C0 to 0x4206C8. These 16 bytes however are used by h5. So, heap manager initialises these bytes to 0. For the remaining 16 bytes, <strong>they are zero at beginning</strong>. </p>
+</blockquote>
+
+<p><img src="../images/posts/heap/img/heap_h5_alloc.png" alt="heap_h5_alloc" /></p>
+
+<p>Finally, after the assignment of H6, the heap looks as follows:</p>
+
+<p><img src="../images/posts/heap/img/heap_h6_alloc.png" alt="heap_h6_alloc" /></p>
+
+<p>This verifies the assignment scheme of heap manager.</p>
+
+<hr />
+
+<h2 id="free-heap-chunk">Free Heap Chunk</h2>
+<p>We will free h1, h3, h5 in a row. Since these three chunks are isolated, no collapse will happen. If everything works fine, then h1, h3 (16 bytes) should be indexed by Freelist[2] and h5 (32 bytes) should be indexed by Freelist[4].</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Freelist</th>
+      <th>Address</th>
+      <th>bytes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Freelist[0]</td>
+      <td>0x420178</td>
+      <td>8 bytes</td>
+    </tr>
+    <tr>
+      <td>Freelist[1]</td>
+      <td>0x420180</td>
+      <td>16 bytes</td>
+    </tr>
+    <tr>
+      <td>Freelist[2]</td>
+      <td>0x420188</td>
+      <td>24 bytes</td>
+    </tr>
+    <tr>
+      <td>Freelist[3]</td>
+      <td>0x420190</td>
+      <td>32 bytes</td>
+    </tr>
+    <tr>
+      <td>Freelist[4]</td>
+      <td>0x420198</td>
+      <td>40 bytes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>At this moment, let’s check the freelist info. Currently, only Freelist[0] points to the free heap chunk (0x00420708), but do not forget the header. </p>
+
+<p><img src="../images/posts/heap/img/heap_freelist_after_alloc.png" alt="heap_freelist_after_alloc.png" /></p>
+
+<h4 id="free-h1">Free h1</h4>
+
+<p>The assembly code is attached below. Here, <strong>EBX</strong> stores 0x420688, i.e., the address of h1.</p>
+
+<p><img src="../images/posts/heap/img/assembly_free_h1.png" alt="assembly_free_h1.png" /></p>
+
+<p>After free, the flag of h1 become 00 (i.e., free). Meanwhile, the data section are fed by the flink and blink. Here, both of them are 0x00420188 (<strong>Freelist[2]</strong>), since there is only one free chunk pointed by Freelist[2]. </p>
+
+<p><img src="../images/posts/heap/img/free_h1.png" alt="free_h1.png" /></p>
+
+<p>Check Freelist[2]. Obviously, Freelist[2] links h1.</p>
+
+<p><img src="../images/posts/heap/img/freelist[2]_free_h1.png" alt="freelist2_free_h1" /></p>
+
+<h4 id="free-h1-h3-h5">Free h1, h3, h5</h4>
+
+<p>The procedure of free h3 and h5 is similar. After free h5, Freelist[2] now has two entries: h1 &amp; h3 (0x004206A8). Freelist[4] also links h5 (0x004206C8).</p>
+
+<p><img src="../images/posts/heap/img/freelist[4]_free_h1.png" alt="freelist[4]_free_h1.png" /></p>
+
+<p>Now let’s check the heap chunk. Obviously, for those freed chunks, their flags as well as the flink/ blink change accordingly. Take h1 as the example, flink of h1 points to h3 and its blink points to Freelist[2].
+In summary, it becomes a double-linked circular list.</p>
+
+<hr />
+
+<h2 id="aggregate-heap-chunk">Aggregate Heap Chunk</h2>
+<p>If we free h4, then h3, h4 and h5 are in a row. And they would be merged for more efficient chunk assignment later on. </p>
+
+<p>Let’s check the h3 header. Supposingly, the data section should not change, but the size of the header would be aggregated (64 bytes). In this case, Freelist also changes accordingly. Freelist[8] would point to this chunk. Freelist[2] and Freelist[4] will not link h3 and h5, respectively. h1 also will not point to h3. </p>
+
+<p>Run and verify it. </p>
+
+<p><img src="../images/posts/heap/img/heap_chunk_aggregate.png" alt="img/heap_chunk_aggregate.png" /></p>
+
+<p>Indeed, the size of (h3+h4+h5) at 0x004206A0 is 0x08 (64bytes). This chunk points to 0x004201B8 (<strong>Freelist[7]</strong>). H1 only points to Freelist[2].  </p>
+
+<p><img src="../images/posts/heap/img/freelist[8]_aggregate.png" alt="freelist[8]_aggregate.png" /></p>
+
+<hr />
+<p>Thanks for your reading. </p>
