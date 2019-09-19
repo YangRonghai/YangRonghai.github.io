@@ -2,13 +2,13 @@
 <feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
 <title type="text">YANG, Ronghai</title>
 <generator uri="https://github.com/jekyll/jekyll">Jekyll</generator>
-<link rel="self" type="application/atom+xml" href="http://personal.ie.cuhk.edu.hk/~yr013/feed.xml" />
-<link rel="alternate" type="text/html" href="http://personal.ie.cuhk.edu.hk/~yr013" />
-<updated>2019-02-11T21:33:05+08:00</updated>
-<id>http://personal.ie.cuhk.edu.hk/~yr013/</id>
+<link rel="self" type="application/atom+xml" href="https://yangronghai.github.io//feed.xml" />
+<link rel="alternate" type="text/html" href="https://yangronghai.github.io/" />
+<updated>2019-09-20T07:57:19+08:00</updated>
+<id>https://yangronghai.github.io//</id>
 <author>
   <name>Yang Ronghai</name>
-  <uri>http://personal.ie.cuhk.edu.hk/~yr013/</uri>
+  <uri>https://yangronghai.github.io//</uri>
   <email>yr013@ie.cuhk.edu.hk</email>
 </author>
 
@@ -17,13 +17,13 @@
 
 <entry>
   <title type="html"><![CDATA[Heap Debug]]></title>
-  <link rel="alternate" type="text/html" href="http://personal.ie.cuhk.edu.hk/~yr013/heap-debug/" />
-  <id>http://personal.ie.cuhk.edu.hk/~yr013/heap-debug</id>
+  <link rel="alternate" type="text/html" href="https://yangronghai.github.io//heap-debug/" />
+  <id>https://yangronghai.github.io//heap-debug</id>
   <published>2017-03-31T00:00:00+08:00</published>
   <updated>2017-03-31T00:00:00+08:00</updated>
   <author>
     <name>Yang Ronghai</name>
-    <uri>http://personal.ie.cuhk.edu.hk/~yr013</uri>
+    <uri>https://yangronghai.github.io/</uri>
     <email>yr013@ie.cuhk.edu.hk</email>
   </author>
   <content type="html">&lt;h1 id=&quot;centerheap-introduction--debug-center&quot;&gt;&lt;center&gt;Heap Introduction &amp;amp; Debug &lt;/center&gt;&lt;/h1&gt;
@@ -231,7 +231,7 @@ In summary, it becomes a double-linked circular list.&lt;/p&gt;
 &lt;hr /&gt;
 &lt;p&gt;Thanks for your reading. &lt;/p&gt;
 
-  &lt;p&gt;&lt;a href=&quot;http://personal.ie.cuhk.edu.hk/~yr013/heap-debug/&quot;&gt;Heap Debug&lt;/a&gt; was originally published by Yang Ronghai at &lt;a href=&quot;http://personal.ie.cuhk.edu.hk/~yr013&quot;&gt;YANG, Ronghai&lt;/a&gt; on March 31, 2017.&lt;/p&gt;</content>
+  &lt;p&gt;&lt;a href=&quot;https://yangronghai.github.io//heap-debug/&quot;&gt;Heap Debug&lt;/a&gt; was originally published by Yang Ronghai at &lt;a href=&quot;https://yangronghai.github.io/&quot;&gt;YANG, Ronghai&lt;/a&gt; on March 31, 2017.&lt;/p&gt;</content>
 </entry>
 
 
@@ -239,13 +239,13 @@ In summary, it becomes a double-linked circular list.&lt;/p&gt;
 
 <entry>
   <title type="html"><![CDATA[Random Oracle Model]]></title>
-  <link rel="alternate" type="text/html" href="http://personal.ie.cuhk.edu.hk/~yr013/random-oracle/" />
-  <id>http://personal.ie.cuhk.edu.hk/~yr013/random-oracle</id>
+  <link rel="alternate" type="text/html" href="https://yangronghai.github.io//random-oracle/" />
+  <id>https://yangronghai.github.io//random-oracle</id>
   <published>2015-01-23T12:37:16+08:00</published>
   <updated>2015-01-23T12:37:16+08:00</updated>
   <author>
     <name>Yang Ronghai</name>
-    <uri>http://personal.ie.cuhk.edu.hk/~yr013</uri>
+    <uri>https://yangronghai.github.io/</uri>
     <email>yr013@ie.cuhk.edu.hk</email>
   </author>
   <content type="html">&lt;h2 id=&quot;about-random-oracle-model&quot;&gt;About Random Oracle Model&lt;/h2&gt;
@@ -343,7 +343,7 @@ Otherwise, choose a random &lt;em&gt;k&lt;/em&gt; as &lt;em&gt;H(x)&lt;/em&gt; a
 
 &lt;p&gt;[2] M. Bellare and P. Rogaway, “Random oracles are practical: a paradigm for designing efficient protocols”, In &lt;em&gt;ACM Conf. on Computer and Communication Security&lt;/em&gt;, 1993.&lt;/p&gt;
 
-  &lt;p&gt;&lt;a href=&quot;http://personal.ie.cuhk.edu.hk/~yr013/random-oracle/&quot;&gt;Random Oracle Model&lt;/a&gt; was originally published by Yang Ronghai at &lt;a href=&quot;http://personal.ie.cuhk.edu.hk/~yr013&quot;&gt;YANG, Ronghai&lt;/a&gt; on January 23, 2015.&lt;/p&gt;</content>
+  &lt;p&gt;&lt;a href=&quot;https://yangronghai.github.io//random-oracle/&quot;&gt;Random Oracle Model&lt;/a&gt; was originally published by Yang Ronghai at &lt;a href=&quot;https://yangronghai.github.io/&quot;&gt;YANG, Ronghai&lt;/a&gt; on January 23, 2015.&lt;/p&gt;</content>
 </entry>
 
 </feed>
