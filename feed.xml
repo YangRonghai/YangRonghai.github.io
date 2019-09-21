@@ -4,12 +4,12 @@
 <generator uri="https://github.com/jekyll/jekyll">Jekyll</generator>
 <link rel="self" type="application/atom+xml" href="https://yangronghai.github.io//feed.xml" />
 <link rel="alternate" type="text/html" href="https://yangronghai.github.io/" />
-<updated>2019-09-20T07:57:19+08:00</updated>
+<updated>2019-09-21T23:16:30+08:00</updated>
 <id>https://yangronghai.github.io//</id>
 <author>
   <name>Yang Ronghai</name>
   <uri>https://yangronghai.github.io//</uri>
-  <email>yr013@ie.cuhk.edu.hk</email>
+  <email>ronghai1130@gmail.com</email>
 </author>
 
 
@@ -24,7 +24,7 @@
   <author>
     <name>Yang Ronghai</name>
     <uri>https://yangronghai.github.io/</uri>
-    <email>yr013@ie.cuhk.edu.hk</email>
+    <email>ronghai1130@gmail.com</email>
   </author>
   <content type="html">&lt;h1 id=&quot;centerheap-introduction--debug-center&quot;&gt;&lt;center&gt;Heap Introduction &amp;amp; Debug &lt;/center&gt;&lt;/h1&gt;
 
@@ -246,7 +246,7 @@ In summary, it becomes a double-linked circular list.&lt;/p&gt;
   <author>
     <name>Yang Ronghai</name>
     <uri>https://yangronghai.github.io/</uri>
-    <email>yr013@ie.cuhk.edu.hk</email>
+    <email>ronghai1130@gmail.com</email>
   </author>
   <content type="html">&lt;h2 id=&quot;about-random-oracle-model&quot;&gt;About Random Oracle Model&lt;/h2&gt;
 
