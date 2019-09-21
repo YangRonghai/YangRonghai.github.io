@@ -1,0 +1,94 @@
+<h2 id="about-random-oracle-model">About Random Oracle Model</h2>
+
+<p>A function <em>H: {0,1}<sup>*</sup></em>—&gt;{0,1}<sup>*</sup></p>
+
+<ul>
+  <li>Each bit of <em>H(x)</em> is random.</li>
+  <li>The output is uniform and independent (treat it as randomly chosen on the fly).</li>
+</ul>
+
+<p><em>If an adversary A has not <strong>explicitly</strong> queried the oracle on some point x, then the value of <strong>H(x) is completely random</strong> (at least as far as A is concerned)</em></p>
+
+<p>Note that it is different from <strong>pseudorandom generator G(x)</strong>, where <em>G(x)</em> is pseudorandom to <em>x</em> which is chosen uniformly at random and is unknown for the adversary. For random oracle, however, <em>H(x)</em> is truly random as long as the adversary has not query  <em>x</em> before. This still holds even if <em>x</em> has been known and is not uniformly random. </p>
+
+<h2 id="why-we-need-random-oracle-model">Why we need random oracle model</h2>
+
+<p>There are few public-key cryptosystems that are both: (1) efficient enough in practice and (2) can be proven secure in the standard model.  It is hard to design an efficient crypto system based on the number theory assumptions (e.g., factoring problem, DDH assumption, etc.). Therefore, users may prefer to use <em>nothing</em> instead of an inefficient algorithm. </p>
+
+<p>An alternative approach is to prove the security in an ideal model, e.g., random oracle model. As long as the instantiation of the ideal model in practice is secure (but sure, such an instantiation may not exist), then the scheme proven secure in ROM should also be secure.  In fact, there have been few real-world attacks on schemes proven secure in ROM. At least, such a proof can help to confirm there are no inherent design problems. </p>
+
+<p>The fundamental reason is the belief [1]:</p>
+
+<p><em>A proof in security in the random oracle model is significantly better than no proof at all.</em></p>
+
+<h2 id="prove-scheme-secure-in-random-oracle-model">Prove scheme secure in random oracle model</h2>
+
+<p>Generally, the proof is done by a reduction algorithm:</p>
+
+<p><em>If the scheme can be broken by the adversary in the random oracle, then a <strong>simulator</strong> can use this ability to violate some hard cryptographic assumptions.</em></p>
+
+<p>The <strong>reduction</strong> or <strong>simulator</strong> has the following power:</p>
+
+<ol>
+  <li>
+    <p><strong>programmability</strong>: The simulator can choose values for the output of <strong>H</strong> as it likes as long as the outputs are uniformly distributed. This gives much advantage for the simulator. For example, the simulator may construct <strong><em>H(x)=g^x mod N.</em></strong> With this power, the simulator can specially craft some constructs of hard problems. </p>
+  </li>
+  <li>
+    <p><strong>Observability</strong>:The simulator can see all the queries that Adversary makes to the random oracle. Therefore, the simulator can leverage the power of the adversary to solve some hard problems.</p>
+  </li>
+</ol>
+
+<p>In the formal model, we assume all the queries are private. Here, we are using Adversary as a subroutine within the reduction/ simulator.</p>
+
+<h2 id="example-rsa-encryption-against-chosen-plaintext-attack-in-radom-oracle-model">Example: RSA Encryption against Chosen Plaintext Attack in Radom Oracle Model</h2>
+
+<p>Obviously, the textbook RSA encryption is not secured. Here, we show how to prove the following variant scheme is secure.</p>
+
+<p></p>
+
+<blockquote>
+   <p>
+      <p>
+	Gen:
+        (<var>N</var>,<var>e</var>,<var>d</var>)&lt; -
+        <var>G</var>(1<sup>&lambda;</sup>)
+      </p>
+      <p>
+        Enc: on input <var>a</var> public key (<var>N</var>,<var>e</var>) and
+        <var>a</var> message <var>m</var>
+        &isin;{0,1}<sup><var>l</var>(<var>n</var>)</sup>&#x2063;&#x2063;:
+      </p>
+      <p>
+        (<var>c</var><sub>1</sub>,<var>c</var><sub>2</sub>) =
+        (<var>r</var><sup><var>e</var></sup> mod
+        <var>N</var>&#x2063;&#x2063;,<var>H</var>(<var>r</var>)&oplus;<var>m</var>)
+        <sup> </sup>
+      </p>
+    </p>
+    <p>
+      Dec:
+      <var>m</var> = <var>H</var>(<var>c</var><sub>1</sub><sup><var>d</var></sup> 
+      mod <var>N</var>) &oplus; <var>c</var><sub>2</sub>
+    </p>
+</blockquote>
+
+<p>Intuitively, this scheme is secure. Suppose an adversary can break this scheme by query the oracle, then the RSA problem can be solved as follows:</p>
+
+<p>Given (<var>N,e, c<sub>1</sub>,k’</var>) to the reduction algorithm (here, the simulator guess <var>c<sub>1</sub> is the ciphertext returned to the adeversary.), which makes the adversary run under the input (<var>N,e</var>) and ciphertext <var>(c<sub>1</sub>,c<sub>2</sub>)</var>. Note that the adversary can get a ciphertext under chosen plaintext attack, thus the assumption is reasonable.</var></p>
+
+<p>The adversary will query <var>x</var> to the oracle. If it happens that <var>x<sup>e</sup> mod N = c<sub>1</sub></var>, the oracle will output <var>k’</var>, i.e., for any input x, if <em>x^e=c<sub>1</sub></em>, then just output <em>k<sub>1</sub>=H(x)</em>;
+Otherwise, choose a random <em>k</em> as <em>H(x)</em> and store <em>(x,k)</em> in the table.</p>
+
+<p>As <var>k’</var> is chosen randomly, the view of the Adversary is the same as that in the original setting. Note that the simulator  can monitor all the queries made to the oracle. If the query occurs to be the random variable <em>r</em>, then the simulator can output the message (<em>r</em>) given <em>c<sub>1</sub> = r<sup>e</sup> mode N</em>. Therefore, the probability of breaking this scheme by ORM should equal to  RSA, which is hard. Thus this scheme is hard.</p>
+
+<p>A formal proof can be found in reference [1] as follows:</p>
+
+<p><img src="../images/posts/rom_post1.png" alt="Formal proof" /></p>
+
+<p>This concludes that the query is negligible since RSA problem is hard.</p>
+
+<h3 id="reference"><em>Reference:</em></h3>
+
+<p>[1] Jonathan Katz, Yehuda Lindell, “Introduction to Modern Cryptography”,2007.</p>
+
+<p>[2] M. Bellare and P. Rogaway, “Random oracles are practical: a paradigm for designing efficient protocols”, In <em>ACM Conf. on Computer and Communication Security</em>, 1993.</p>
