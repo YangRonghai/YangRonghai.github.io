@@ -1,80 +1,245 @@
-/* Custom improvements for better layout */
+/* ============================================
+   Professional Layout Improvements
+   ============================================ */
 
-/* Improve heading spacing and visual hierarchy */
+/* --- Global Refinements --- */
+body.page {
+    background-color: #fafafa;
+}
+
+/* --- Navigation Enhancement --- */
+.navigation-wrapper {
+    border-bottom: 3px solid #2c3e50;
+    background: #fff;
+    padding-top: 1.5em;
+    padding-bottom: 0.8em;
+}
+
+.site-name a {
+    color: #2c3e50 !important;
+    letter-spacing: 0.5px;
+}
+
+.top-navigation li a {
+    color: #555 !important;
+    font-size: 0.95rem;
+    letter-spacing: 0.3px;
+    padding-bottom: 4px !important;
+    border-bottom: 2px solid transparent !important;
+    transition: all 0.3s ease !important;
+}
+
+.top-navigation li a:hover {
+    color: #2c3e50 !important;
+    border-bottom-color: #3498db !important;
+}
+
+/* --- Sidebar Refinements --- */
+.article-author-side {
+    text-align: center;
+}
+
+.article-author-side .bio-photo {
+    border: 3px solid #e0e0e0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: box-shadow 0.3s;
+}
+
+.article-author-side .bio-photo:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.article-author-side h3 {
+    color: #2c3e50;
+    margin-top: 12px;
+    font-size: 1.1rem;
+}
+
+.article-author-side p {
+    color: #666;
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+.author-social {
+    color: #555 !important;
+    transition: color 0.2s, transform 0.2s;
+}
+
+.author-social:hover {
+    color: #3498db !important;
+}
+
+/* --- Main Content Area --- */
+#main {
+    background: #fff;
+    margin-top: 0;
+    padding-top: 2em;
+}
+
+/* --- Article Title --- */
+article.page > h1 {
+    color: #2c3e50;
+    font-size: 2.2rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 0.8em;
+    padding-bottom: 0.6em;
+    border-bottom: 3px solid #3498db;
+}
+
+/* --- Section Headings (h2) --- */
 .article-wrap h2 {
     margin-top: 2.5em;
     margin-bottom: 1em;
     padding-bottom: 0.5em;
-    border-bottom: 2px solid #e0e0e0;
+    border-bottom: 2px solid #e8e8e8;
     color: #2c3e50;
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: -0.3px;
 }
 
+.article-wrap h2:first-of-type {
+    margin-top: 0.5em;
+}
+
+/* --- Subsection Headings (h3) --- */
 .article-wrap h3 {
-    margin-top: 2em;
+    margin-top: 1.8em;
     margin-bottom: 0.8em;
     color: #34495e;
-    font-size: 1.3em;
+    font-size: 1.25rem;
+    font-weight: 700;
+    padding-left: 12px;
+    border-left: 4px solid #3498db;
 }
 
-/* Improve list styling */
+/* --- Paragraph & Text --- */
+.article-wrap p {
+    line-height: 1.8;
+    margin-bottom: 1.2em;
+    color: #444;
+}
+
+/* --- Lists --- */
 .article-wrap ul {
     line-height: 1.8;
     margin-bottom: 1.5em;
+    padding-left: 1.2em;
 }
 
 .article-wrap ul li {
-    margin-bottom: 0.8em;
+    margin-bottom: 0.7em;
+    color: #444;
+    position: relative;
 }
 
-/* Highlight important numbers and achievements */
+.article-wrap li p {
+    margin-bottom: 0.4em;
+}
+
+/* --- Strong/Bold Text --- */
 .article-wrap strong {
-    color: #2980b9;
-    font-weight: 600;
+    color: #2c3e50;
+    font-weight: 700;
 }
 
-/* Better paragraph spacing */
-.article-wrap p {
-    line-height: 1.7;
-    margin-bottom: 1.2em;
-}
-
-/* Improve visual separation between sections */
-.article-wrap h2:first-of-type {
-    margin-top: 0;
-}
-
-/* Style for subsection lists under h3 */
-.article-wrap h3 + ul {
-    margin-top: 0.5em;
-    padding-left: 1.5em;
-}
-
-/* Improve link styling within content */
+/* --- Links --- */
 .article-wrap a {
     color: #3498db;
     text-decoration: none;
+    border-bottom: 1px solid rgba(52, 152, 219, 0.3);
+    transition: all 0.2s ease;
+}
+
+.article-wrap a:hover,
+.article-wrap a:visited:hover {
+    color: #2980b9;
+    border-bottom-color: #2980b9;
+}
+
+/* --- Horizontal Rules --- */
+.article-wrap hr {
+    border: none;
+    border-top: 1px solid #e0e0e0;
+    margin: 2em 0;
+}
+
+/* --- Publication List Styling --- */
+.article-wrap ul li p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+}
+
+/* --- Footer --- */
+.footer-wrap {
+    background: #f5f5f5;
+    border-top: 1px solid #e0e0e0;
+    padding-top: 2em;
+}
+
+.footer-wrap span {
+    color: #888;
+}
+
+.footer-wrap a {
+    color: #666;
     border-bottom: 1px solid transparent;
-    transition: border-bottom-color 0.2s;
 }
 
-.article-wrap a:hover {
-    border-bottom-color: #3498db;
+.footer-wrap a:hover {
+    color: #3498db;
 }
 
-/* Better spacing for nested paragraphs in lists */
-.article-wrap li p {
-    margin-bottom: 0.5em;
+/* --- Language Switcher Enhancement --- */
+.lang-switcher {
+    background: rgba(255, 255, 255, 0.98) !important;
+    border: 1px solid #e0e0e0 !important;
+    border-radius: 6px !important;
+    padding: 6px 14px !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08) !important;
+    font-family: 'PT Sans Narrow', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    z-index: 1000;
 }
 
-/* Responsive adjustments */
+.lang-switcher a {
+    color: #888;
+    text-decoration: none;
+    padding: 2px 6px;
+    border-radius: 3px;
+    transition: all 0.2s;
+}
+
+.lang-switcher a.active {
+    color: #2c3e50;
+    background: #f0f0f0;
+}
+
+.lang-switcher a:hover {
+    color: #3498db;
+}
+
+.lang-switcher .separator {
+    color: #ccc;
+    margin: 0 2px;
+}
+
+/* --- Responsive --- */
 @media only screen and (max-width: 768px) {
+    article.page > h1 {
+        font-size: 1.8rem;
+    }
+
     .article-wrap h2 {
         margin-top: 2em;
-        font-size: 1.5em;
+        font-size: 1.4rem;
     }
 
     .article-wrap h3 {
         margin-top: 1.5em;
-        font-size: 1.2em;
+        font-size: 1.15rem;
     }
 }
