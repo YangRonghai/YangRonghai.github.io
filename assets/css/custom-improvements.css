@@ -1,0 +1,80 @@
+/* Custom improvements for better layout */
+
+/* Improve heading spacing and visual hierarchy */
+.article-wrap h2 {
+    margin-top: 2.5em;
+    margin-bottom: 1em;
+    padding-bottom: 0.5em;
+    border-bottom: 2px solid #e0e0e0;
+    color: #2c3e50;
+}
+
+.article-wrap h3 {
+    margin-top: 2em;
+    margin-bottom: 0.8em;
+    color: #34495e;
+    font-size: 1.3em;
+}
+
+/* Improve list styling */
+.article-wrap ul {
+    line-height: 1.8;
+    margin-bottom: 1.5em;
+}
+
+.article-wrap ul li {
+    margin-bottom: 0.8em;
+}
+
+/* Highlight important numbers and achievements */
+.article-wrap strong {
+    color: #2980b9;
+    font-weight: 600;
+}
+
+/* Better paragraph spacing */
+.article-wrap p {
+    line-height: 1.7;
+    margin-bottom: 1.2em;
+}
+
+/* Improve visual separation between sections */
+.article-wrap h2:first-of-type {
+    margin-top: 0;
+}
+
+/* Style for subsection lists under h3 */
+.article-wrap h3 + ul {
+    margin-top: 0.5em;
+    padding-left: 1.5em;
+}
+
+/* Improve link styling within content */
+.article-wrap a {
+    color: #3498db;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-bottom-color 0.2s;
+}
+
+.article-wrap a:hover {
+    border-bottom-color: #3498db;
+}
+
+/* Better spacing for nested paragraphs in lists */
+.article-wrap li p {
+    margin-bottom: 0.5em;
+}
+
+/* Responsive adjustments */
+@media only screen and (max-width: 768px) {
+    .article-wrap h2 {
+        margin-top: 2em;
+        font-size: 1.5em;
+    }
+
+    .article-wrap h3 {
+        margin-top: 1.5em;
+        font-size: 1.2em;
+    }
+}
