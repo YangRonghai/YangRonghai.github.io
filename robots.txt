@@ -1,0 +1,26 @@
+# robots.txt for https://yangronghai.github.io/
+# Allow all search engines to index the site
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://yangronghai.github.io/sitemap.xml
+
+# Crawl-delay for polite crawling (optional)
+Crawl-delay: 1
+
+# Disallow crawling of certain file types if needed
+# User-agent: *
+# Disallow: /*.json$
+# Disallow: /*.xml$
+
+# Special rules for specific bots (examples)
+# User-agent: Googlebot
+# Allow: /
+
+# User-agent: Bingbot
+# Allow: /
+
+# User-agent: Baiduspider
+# Allow: /
